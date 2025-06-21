@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Teacher Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f2f2f2;
+        }
+
+        .table-container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin: 2rem auto;
+            max-width: 900px;
+        }
+
+        .navbar {
+            border-bottom: 3px solid red;
+        }
+
+        .brand {
+            font-weight: bold;
+            color: red;
+            font-size: 24px;
+        }
+
+        .btn-dark {
+            width: 100px;
+        }
+
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-white px-4">
+        <span class="brand">Tailwebs.</span>
+        <div>
+            <a href="{% url 'index' %}" class="me-3 text-dark text-decoration-none">Home</a>
+            <a href="{% url 'logout' %}" class="text-dark text-decoration-none">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Mark</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar me-2">{{ record.name|slice:":1" }}</div>
+                            {{ record.name }}
+                        </div>
+                    </td>
+                    <td>{{ record.subject }}</td>
+                    <td>{{ record.mark }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light border rounded-circle" type="button"
+                                data-bs-toggle="dropdown">
+                                <span class="fw-bold">•••</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                        data-bs-target="#editModal{{ record.id }}">
+                                        Edit
+                                    </button>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                        href="{% url 'delete_record' record.id %}">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- ✅ Edit Modal (inside loop) -->
+                <div class="modal fade" id="editModal{{ record.id }}" tabindex="-1"
+                    aria-labelledby="editModalLabel{{ record.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-3">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel{{ record.id }}">Edit Record</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{% url 'edit_record' record.id %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-control" name="name"
+                                            value="{{ record.name }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Subject</label>
+                                        <input type="text" class="form-control" name="subject"
+                                            value="{{ record.subject }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mark</label>
+                                        <input type="number" class="form-control" name="mark"
+                                            value="{{ record.mark }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-dark w-100">Update</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Add Button -->
+        <div class="text-end mt-3">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addModal">
+                Add
+            </button>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        {% for message in messages %}
+        <div class="toast align-items-center text-bg-{{ message.tags }} border-0 mb-2" role="alert"
+            aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+            <div class="d-flex">
+                <div class="toast-body">{{ message }}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Add Record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'add_record' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" name="subject" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="mark" class="form-label">Mark</label>
+                            <input type="number" class="form-control" name="mark" min="0" max="100" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-dark w-100">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Toast activation -->
+    <script>
+        const toastList = [].slice.call(document.querySelectorAll('.toast'));
+        toastList.forEach(function (toastEl) {
+            new bootstrap.Toast(toastEl).show();
+        });
+    </script>
+</body>
+
+</html>
