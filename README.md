@@ -28,13 +28,13 @@ A simple Django-based web application that allows teachers to **register**, **lo
 
 ##  Setup Instructions
 
-**Clone the repository:**
+Clone the repository
 
 ```bash
 git clone https://github.com/your-username/teacher-portal.git
 cd teacher-portal
 
-Create virtual environment and activate it:
+Create Virtual Environment
 
 python -m venv env
 source env/bin/activate 
