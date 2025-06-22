@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login,logout
 from .models import *
 import re
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -64,8 +65,11 @@ def user_login(request):
 
 @login_required
 def index(request):
-    records = StudentRecord.objects.all()
-    return render(request, 'index.html', {'records': records})
+    records_list = StudentRecord.objects.all().order_by('-id')  
+    paginator = Paginator(records_list, 5)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'index.html', {'page_obj': page_obj})
 
 
 
