@@ -150,42 +150,36 @@
             </tbody>
         </table>
 
-        <div class="mt-4 text-end">
-            <nav>
-                <ul class="pagination justify-content-end">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1">&laquo; First</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                    </li>
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="mt-4 text-end">
+    <nav>
+        <ul class="pagination justify-content-end">
+
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                    {% if num == page_obj.number %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
                     {% endif %}
+                {% endif %}
+            {% endfor %}
 
-                    {% for num in page_obj.paginator.page_range %}
-                    {% if num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %} {% if num==page_obj.number
-                        %} <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
-                        </li>
-                        {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        </li>
-                        {% endif %}
-                        {% endif %}
-                        {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+            {% endif %}
 
-                        {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-                        </li>
-                        {% endif %}
-                </ul>
-            </nav>
-        </div>
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
 
 
 
@@ -227,11 +221,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" name="name" required />
+                            <input type="text" class="form-control" name="name" pattern="^[^\d]+$" required />
                         </div>
                         <div class="mb-3">
                             <label for="subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" name="subject" required />
+                            <input type="text" class="form-control" name="subject" pattern="^[^\d]+$" required />
                         </div>
                         <div class="mb-3">
                             <label for="mark" class="form-label">Mark</label>
