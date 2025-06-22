@@ -21,7 +21,7 @@ def register(request):
             messages.error(request, "Password must contain at least one number.")
             return render(request, "register.html")
 
-        if not re.search(r"[^\w\s]", password):  # checks for symbols
+        if not re.search(r"[^\w\s]", password): 
             messages.error(request, "Password must contain at least one symbol.")
             return render(request, "register.html")
 
@@ -36,7 +36,7 @@ def register(request):
         user.save()
 
         messages.success(request, "Registration successful!")
-        return redirect("login") # or wherever you want to redirect
+        return redirect("login") 
 
     return render(request, "register.html")
 
@@ -56,7 +56,7 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('/')  # Change to your dashboard/home page
+            return redirect('/') 
         else:
             messages.error(request, "Invalid email or password.")
             return redirect('login')
@@ -77,18 +77,21 @@ def user_logout(request):
 @login_required
 def add_record(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        subject = request.POST.get("subject")
-        mark = request.POST.get("mark")
-        if StudentRecord.objects.filter(name__iexact=name, subject__iexact=subject).exists():
-            messages.error(request, "This student and subject combination already exists.")
-            return redirect('index')
+        try:
+            name = request.POST.get("name")
+            subject = request.POST.get("subject")
+            mark = request.POST.get("mark")
 
-        StudentRecord.objects.create(name=name, subject=subject, mark=mark)
-        messages.success(request, "Record added successfully.")
-        return redirect('index')
-    else:
-        return redirect('index')
+            if StudentRecord.objects.filter(name__iexact=name, subject__iexact=subject).exists():
+                messages.error(request, "This student and subject combination already exists.")
+                return redirect('index')
+
+            StudentRecord.objects.create(name=name, subject=subject, mark=mark)
+            messages.success(request, "Record added successfully.")
+        except Exception as e:
+            messages.error(request, f"An error occurred while adding the record: {str(e)}")
+
+    return redirect('index')
     
 
 
@@ -102,7 +105,7 @@ def delete_record(request, record_id):
     except StudentRecord.DoesNotExist:
         messages.error(request, "Record not found.")
     
-    return redirect('index')  # Replace with your home view name
+    return redirect('index') 
 
 
 
