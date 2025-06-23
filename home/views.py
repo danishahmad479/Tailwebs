@@ -82,16 +82,21 @@ def user_logout(request):
 def add_record(request):
     if request.method == "POST":
         try:
-            name = request.POST.get("name")
-            subject = request.POST.get("subject")
-            mark = request.POST.get("mark")
+            name = request.POST.get("name").strip()
+            subject = request.POST.get("subject").strip()
+            mark = int(request.POST.get("mark"))
 
-            if StudentRecord.objects.filter(name__iexact=name, subject__iexact=subject).exists():
-                messages.error(request, "This student and subject combination already exists.")
+            existing_record = StudentRecord.objects.filter(name__iexact=name, subject__iexact=subject).first()
+            if existing_record:
+                existing_record.mark += mark
+                existing_record.save()
+                messages.success(request, "Record updated with new marks.")
+
+            else:
+                # Create new record
+                StudentRecord.objects.create(name=name, subject=subject, mark=mark)
+                messages.success(request, "Record added successfully.")
                 return redirect('index')
-
-            StudentRecord.objects.create(name=name, subject=subject, mark=mark)
-            messages.success(request, "Record added successfully.")
         except Exception as e:
             messages.error(request, f"An error occurred while adding the record: {str(e)}")
 
